@@ -33,7 +33,7 @@ def image_to_base64(image_path):
         print(f"Warning: Image not found: {image_path}")
         return None
 
-def embed_images_in_html(html_file, output_file, images_dir='images'):
+def embed_images_in_html(html_file, output_file, images_dir='lowres_images'):
     """Read HTML and replace image src with base64 data URIs"""
     
     # Read the HTML file
@@ -41,8 +41,8 @@ def embed_images_in_html(html_file, output_file, images_dir='images'):
         html_content = f.read()
     
     # Find all image references
-    # Pattern 1: src="images/filename.ext"
-    img_pattern = re.compile(r'src="images/([^"]+)"')
+    # Pattern 1: src="lowres_images/filename.ext"
+    img_pattern = re.compile(r'src="lowres_images/([^"]+)"')
     
     def replace_image(match):
         filename = match.group(1)

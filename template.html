@@ -631,7 +631,7 @@
         <div class="product-card" id="product-{{ product.product_pn }}" onclick="window.open('{{ product.product_page_url }}', '_blank')">
             <div class="product-image">
                 {% if product.thumbnail %}
-                <img src="images/{{ product.thumbnail }}" alt="{{ product.product_pn }}">
+                <img src="lowres_images/{{ product.thumbnail }}" alt="{{ product.product_pn }}">
                 {% else %}
                 <div class="product-placeholder">{{ product.product_pn }}</div>
                 {% endif %}

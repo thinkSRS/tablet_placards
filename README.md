@@ -182,8 +182,10 @@ The current implementation uses simple substring matching. For more advanced sea
 ## Adding Product Images
 
 1. Create an `images/` folder in the same directory as the HTML file
-2. Place product thumbnail images in this folder
+2. Place full-res product thumbnail images in this folder
 3. Update the `thumbnail` column in `products.csv` with the image filename
+4. Run `resize_images.py` to generate 512 x <height> low-res images 
+  (preserving aspect ratio) to help with page loading time
 
 ## Display Specifications
 
