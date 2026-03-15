@@ -5,7 +5,48 @@ Renders HTML from Jinja2 template using CSV product data
 """
 
 import csv
+import re
 from jinja2 import Template
+
+
+def resolve_product_urls(product):
+    """
+    Resolve URL fields with the following fallback priority:
+      1. Full URL specified in the field → use as-is
+      2. Bracketed part number, e.g. [LDC500] → build default URL using that PN
+      3. Blank field → build default URL using product_pn
+    Default URL patterns:
+      datasheet_link:   https://www.thinksrs.com/downloads/pdfs/catalog/{PN}c.pdf
+      manual_link:      https://www.thinksrs.com/downloads/pdfs/manuals/{PN}m.pdf
+      product_page_url: https://www.thinksrs.com/products/{pn_lower}.html
+    """
+    pn = product.get('product_pn', '')
+
+    def resolve(field_value, url_fn):
+        value = (field_value or '').strip()
+        if not value:
+            if not pn:
+                print(f"Warning: product_pn is empty and no URL provided; link will be blank.")
+                return ''
+            return url_fn(pn)
+        m = re.fullmatch(r'\[([^\]]+)\]', value)
+        if m:
+            return url_fn(m.group(1))
+        return value
+
+    product['datasheet_link'] = resolve(
+        product.get('datasheet_link', ''),
+        lambda p: f'https://www.thinksrs.com/downloads/pdfs/catalog/{p}c.pdf',
+    )
+    product['manual_link'] = resolve(
+        product.get('manual_link', ''),
+        lambda p: f'https://www.thinksrs.com/downloads/pdfs/manuals/{p}m.pdf',
+    )
+    product['product_page_url'] = resolve(
+        product.get('product_page_url', ''),
+        lambda p: f'https://www.thinksrs.com/products/{p.lower()}.html',
+    )
+    return product
 
 def load_products(csv_file):
     """Load product data from CSV file"""
@@ -46,6 +87,9 @@ def main():
         print(f"Error loading CSV: {e}")
         return
     
+    # Resolve URL fields with default fallbacks
+    products = [resolve_product_urls(p) for p in products]
+
     # Sort products by category, then by product_pn
     products.sort(key=lambda x: (x.get('category', ''), x.get('product_pn', '')))
     
