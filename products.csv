@@ -49,4 +49,4 @@ SIM984,Small Instrument Modules,Isolation Amplifier,Isolation voltage up to ±10
 SIM985,Small Instrument Modules,Analog Multiplier,True four-quadrant analog multiplication,5 MHz bandwidth,OUTPUT = (X × Y)/10 V,,,,"1,295",sim985.jpg
 SIM9B2,Small Instrument Modules,Double-wide Prototype Kit,Ideal for custom circuits,Integrate into SIM900 Mainframe,Also available in single-wide,SIM9B19B2,SIM9B19B2,SIM9B19B2,150,sim9b1_9b2.jpg
 BGA244,Vacuum/Gas Analysis,Binary Gas Analyzer,Gas concentration analyzer,Contains data for nearly 500 gases,0.01% typ. concentration error,,,,"4,950",bga244.jpg
-PS375,High Voltage Supplies,High Voltage DC Power Supply,+100 V to +20 kV,1 volt resolution,0.05% accuracy,PS300,PS365,PS300,"4,695",ps370.jpg
+PS375,High Voltage Supplies,High Voltage DC Power Supply,+100 V to +20 kV,1 volt resolution,0.05% accuracy,PS300,,PS300,"4,695",ps370.jpg
