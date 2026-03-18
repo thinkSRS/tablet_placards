@@ -7,6 +7,61 @@ Renders HTML from Jinja2 template using CSV product data
 import csv
 from jinja2 import Template
 
+
+def resolve_product_urls(product):
+    """
+    Resolve URL fields for a single product dict.
+
+    Resolution priority for each of the three URL fields:
+      1. Full URL (starts with http:// or https://) → used as-is.
+      2. Non-empty plain string (e.g. 'LDC500') → treated as an alternate part
+         number; the default URL is built from that PN instead of product_pn.
+      3. Blank field → default URL is built from product_pn.
+
+    Default URL patterns:
+      datasheet_link:   https://www.thinksrs.com/downloads/pdfs/catalog/{PN}c.pdf
+      manual_link:      https://www.thinksrs.com/downloads/pdfs/manuals/{PN}m.pdf
+      product_page_url: https://www.thinksrs.com/products/{pn_lower}.html
+    """
+    pn = product.get('product_pn', '')
+
+    def resolve(field_value, url_fn, field_name):
+        """Return the resolved URL for one field.
+
+        Args:
+            field_value: Raw value from the CSV cell.
+            url_fn: Callable that accepts a part-number string and returns the
+                    default URL for this particular field type.
+            field_name: Name of the CSV field (used in warning messages).
+        """
+        value = (field_value or '').strip()
+        if not value:
+            if not pn:
+                print(f"Warning: product_pn is empty and no {field_name} provided; link will be blank.")
+                return ''
+            return url_fn(pn)
+        if value.startswith('http://') or value.startswith('https://'):
+            return value
+        # Plain part-number string — build the default URL from it.
+        return url_fn(value)
+
+    product['datasheet_link'] = resolve(
+        product.get('datasheet_link', ''),
+        lambda p: f'https://www.thinksrs.com/downloads/pdfs/catalog/{p}c.pdf',
+        'datasheet_link',
+    )
+    product['manual_link'] = resolve(
+        product.get('manual_link', ''),
+        lambda p: f'https://www.thinksrs.com/downloads/pdfs/manuals/{p}m.pdf',
+        'manual_link',
+    )
+    product['product_page_url'] = resolve(
+        product.get('product_page_url', ''),
+        lambda p: f'https://www.thinksrs.com/products/{p.lower()}.html',
+        'product_page_url',
+    )
+    return product
+
 def load_products(csv_file):
     """Load product data from CSV file"""
     products = []
@@ -46,6 +101,9 @@ def main():
         print(f"Error loading CSV: {e}")
         return
     
+    # Resolve URL fields with default fallbacks
+    products = [resolve_product_urls(p) for p in products]
+
     # Sort products by category, then by product_pn
     products.sort(key=lambda x: (x.get('category', ''), x.get('product_pn', '')))
     

@@ -1,6 +1,9 @@
 # SRS Product Display System
 
-A fully-templated HTML display system for showcasing SRS (Stanford Research Systems) products on a 1024 x 600 px 7" tablet.
+A fully-templated HTML display system for showcasing 
+  SRS (Stanford Research Systems) products on a 1024 x 600 px 7" tablet.
+Each product gets an abbreviated "product card"
+  as shown below.
 
 ![Mock display for a 7" tablet](preview.png)
 
@@ -32,19 +35,39 @@ The CSV file contains the following columns:
 - `price` - Product price (formatted as $X,XXX)
 - `thumbnail` - Filename of product image (placed in images/ folder)
 
+Note that `datasheet_link`, `manual_link`, and `product_page_url`
+  follow standard patterns, and can often be left blank, as described below.
+    
+For example:  
+
+| Field | Value |
+| ----- | ----- |
+| `product_pn`| SR542 |
+| `datasheet_link` | https://www.thinksrs.com/downloads/pdfs/catalog/**SR542**c.pdf |
+| `manual_link` | https://www.thinksrs.com/downloads/pdfs/manuals/**SR542**m.pdf |
+| `product_page_url` | https://www.thinksrs.com/products/**SR542**.html |
+
+
+1. **Default case**: leave `datasheet_link`, `manual_link`, and `product_page_url` blank. 
+If these fields are left blank, 
+  the template generator will auto-generate the URLs based on the `product_pn`.
+
+2. **Product specifier differs from `product_pn`**: 
+If the URL is not properly specified by the `product_pn`,
+  then you can simply enter the appropriate `<product_specifier>`.
+For example, the user manual for SR550 is `SR550551552m.pdf` (not `SR550m.pdf`).
+So the Value for its `manual_link` is `SR550551552`.
+See [products.csv](products.csv).
+3. **Unique URL (uncommon)**:
+If the URL cannot be programatically generated from the `<product_specifier>`
+  (e.g. `https://www.thinksrs.com/downloads/pdfs/manuals/<product_specifier>m.pdf`)
+  then the full URL can be entered directly.
+
+
 ## Products Included
 
-All 9 requested SRS products:
-
-1. **DC215** - DC Voltage/Current Source
-2. **CS580** - Voltage Controlled Current Source
-3. **DC205** - Precision DC Voltage Source
-4. **SR865A** - 4 MHz Lock-in Amplifier
-5. **SR2124A** - Dual Phase Analog Lock-in Amplifier
-6. **SR542** - Precision Optical Chopper
-7. **LDC501** - Laser Diode Controller
-8. **SR446** - 400 MHz Preamplifier
-9. **SR560** - Low Noise Voltage Preamplifier
+I have added 51 products that are "likely" to come up in conversation
+  at APS March Meeting
 
 ## Usage
 
@@ -129,9 +152,9 @@ This data is automatically generated from the CSV when running `generate.py`.
 
 ### Search Result Display
 
-Each search result shows:
-- **Part Number** (top line, cyan color) - The product PN like "SR542"
-- **Product Name** (bottom line, white) - Full name like "Precision Optical Chopper"
+Each search result shows:  
+- **Part Number** (top line, cyan color) - The product PN like "SR542"  
+- **Product Name** (bottom line, white) - Full name like "Precision Optical Chopper"  
 
 When a result is clicked:
 - Opens the product page in a new tab
@@ -173,7 +196,7 @@ The current implementation uses simple substring matching. For more advanced sea
 ### Performance Notes
 
 - Search is performed on every keystroke (`oninput` event)
-- With 29 products, performance is instant
+- With the current list products, performance is instant
 - For catalogs with 1000+ products, consider:
   - Debouncing the search (wait 200ms after typing stops)
   - Using a search library with indexing
@@ -240,23 +263,29 @@ body {
 
 ## Display on a Tablet
 
-The idea of creating this webpage is for full-screen display on a ~7" tablet.
-Unfortunately, this has proved non-trivial.  
+The page is best displayed on the Firefox or Chrome app for Android,
+  though neither has a true "full-screen" view as they do for Windows.
 
-- Chrome on Android does not have a Full Screen view  
-- There are apps that offer full screen view, but they introduce other complications:  
+Firefox has a "Scroll to hide toolbar" setting that auto-hides the address bar as you scroll down. (It comes back into view if you scroll up).
+Firefox also has a built-in PDF viewer, so that you aren't prompted to download
+  the manual or datasheet PDFs and then open them with an external viewer app.
 
-1. **Hermit**. Unable to display a locally-stored HTML. Can only display "served" websites. Also doesn't have a built-in PDF viewer, so PDFs (Datasheets and Manuals) must first be downloaded, then passed off to the Android PDF viewer app. This is cumbersome. 
+Update: As of Chrome 146.0.7680.119 (or thereabouts), Chrome seems to behave the same way (toolbar autohides as you scroll "up", and PDF viewer is built-in).
 
-There are a couple solutions for this.  
+There are apps that offer full screen view, but they introduce other complications:  
 
-  - On Android, you can run a local server with Simple HTTP Server. This is a $6 app (for the plus version which can run continuously)  
-  - Host the tablet_placards repo on GitHub pages. (See below documentation)
+1. **Hermit**. Doesn't have a built-in PDF viewer, so PDFs (Datasheets and Manuals) must first be downloaded, then passed off to the Android PDF viewer app. This is cumbersome. 
 
 2. **Fully Kiosk Browser**. This app is designed to provide full-screen "Kiosk" applications... exactly what we are looking for. $10/tablet. Can work with local .html file, or web-accessed pages.
 
-3. **Firefox**. Has a "Scroll to hide toolbar" setting that should work. Has a built-in PDF viewer. Perhaps the simplest solution.
-
 ## Hosting on GitHub Pages
+It turns out Firefox, Chrome, and Hermite cannot display local .html files,
+  so the generated web-page needs to be hosted 
+  (either on a local server with an Android app like Simple HTTP Server),
+  or on the web.
+
 The product index is now hosted on GitHub (viewable publicly) at 
   [https://abergersrs.github.io/tablet_placards/](https://abergersrs.github.io/tablet_placards/).
+
+A push to the `main` branch of this repo automatically deploys 
+  `index.html` to the publically-visible site at that address.
